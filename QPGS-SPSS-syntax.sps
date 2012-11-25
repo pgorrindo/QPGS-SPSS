@@ -3,26 +3,35 @@
 * last updated on November 25, 2012
 * Git repository at https://github.com/pgorrindo/QPGS-SPSS
 * .
-* SPSS Syntax to score the Questionnaire on Pediatric Gastrointestinal Symptoms (QPGS) - ROME III .
+* SPSS Syntax to score the Questionnaire on Pediatric Gastrointestinal Symptoms (QPGS) - ROME III version - .
 * Parent-report form for children 4 years of age and older - more info at: www.romecriteria.org/questionnaires.
 *.
-* Diagnoses: functional dyspepsia; irritable bowel syndrome; abdominal migraine; functional abdominal pain; functional abdominal pain syndrome;.
+* Some notes on the following code:
+*    - there are some required variables that this code expects (i.e. study_group, etc) which your database may not have; 
+*       please consider this code as the starting point that you can build on and will, most likely, need to modify to work for your particular dataset
+*    - use this code at your own risk... I can't guarantee that I'll be able to help you troubleshoot if a problem comes up
+*    - if you find an error, please let me know
+*    - a version of this code has been used in analysis of data that has been published in peer-reviewed reports.
+* .
+* The QPGS generates the following classifications: functional dyspepsia; irritable bowel syndrome; abdominal migraine; functional abdominal pain; functional abdominal pain syndrome;.
 *                    functional constipation; nonretentive fecal incontinence; aerophagia; cyclic vomiting syndrome; adolescent rumination syndrome.
 ***********************************************************************************************************************.
 
 
+
+
 ***************************************************.
 ***************************************************.
-* QPGS skip pattern.
+* QPGS skip pattern -- the QPGS instrument itself has a skip algorithm built into it; here, we account for that.
 ***************************************************.
 *adding -5 values to variables that are supposed to be skipped on the instrument (i.e., "if never, then skip to next section").
 *the following questions prompt skipping:
   qpgs_a1 -- if never then skip to qpgs_b1
   qpgs_b1 -- if never then skip to qpgs_c1
   qpgs_b16 -- if never then go to qpgs_c1
-  qpgs_c2 -- if NOT "hard" or "very hard" then skip qpgs_c2a
+  qpgs_c2 -- if not "hard" or "very hard" then skip qpgs_c2a
   qpgs_c11 -- if never then go to qpgs_d1
-  qpgs_d5 -- if never then go to qpgs_d6 (loren wrote this direction in by hand; before she did this, the instrument said to go to "Section E" which doesn't exist, thus to the end of the survey)
+  qpgs_d5 -- if never then go to qpgs_d6 
   qpgs_d6 -- if never then survey is complete.
 
 DO IF ((include_flag = 1) AND (qpgs_a1=0) AND (qpgs_complete=2)).
@@ -101,7 +110,6 @@ END IF.
 EXECUTE.
 
 
-*this checks for loren's handwritten note to just skip the remaineder of Q5 but continue with Q6.
 DO IF ((include_flag = 1) AND (qpgs_d5=0) AND (qpgs_complete=2)).
   COMPUTE qpgs_d5a = -5.
   COMPUTE qpgs_d5b = -5.
@@ -110,7 +118,6 @@ END IF.
 EXECUTE.
 
 
-*this checks for the original instrument's instruction to skip the remaineder of Q5 and Q6 and go to the (non-existent) "Section E".
 DO IF ((include_flag = 1) AND (qpgs_d5=0) AND (MISSING(qpgs_d6) = 1) AND (qpgs_complete=2)).
   COMPUTE qpgs_d6 = -5.
   COMPUTE qpgs_d6a = -5.
@@ -130,13 +137,8 @@ DO IF ((include_flag = 1) AND (qpgs_d6=0) AND (qpgs_complete=2)).
   COMPUTE qpgs_d6e = -5.
 END IF.
 EXECUTE.
-
-
 ***************************************************.
 ***************************************************.
-
-
-
 
 
 **************************************************.
@@ -269,12 +271,6 @@ EXECUTE.
 DELETE VARIABLES IBS_crit1 IBS_crit2 IBS_crit3 IBS_crit4 IBS_crit5 IBS_crit6.
 
 * if any of the following criteria are endorsed, this suggests IBS, but these criteria are not required for IBS dx.
-*************************************************************************************************************************************************.
-*************************************************************************************************************************************************.
-*** NOTE: need to determine if there is a minimum frequency required for each of the following (C4-C7) criteria, for them to be suggestive of IBS ***.
-*************************************************************************************************************************************************.
-*************************************************************************************************************************************************.
-
 DO IF (qpgs_complete=2).
   DO IF (qpgs_c4 = 1 or qpgs_c4 = 2 or qpgs_c4 = 3 or qpgs_c4 = 4).
     COMPUTE IBS_suggestive = 1.
@@ -291,9 +287,6 @@ END IF.
 EXECUTE.
 **************************************************.
 **************************************************.
-
-
-
 
 
 **************************************************.
@@ -333,16 +326,11 @@ DO IF (qpgs_complete=2).
 *  END IF.
 COMPUTE AM_dx = 0.
 END IF.
-******NOTE: after meeting with lynn walker on 20110308, she suggested not scoring for AM since this was more of a european dx and difficult to distinguish from FAPS.
-
 
 EXECUTE.
 DELETE VARIABLES AM_crit1 AM_crit2 AM_crit3.
 **************************************************.
 **************************************************.
-
-
-
 
 
 **************************************************.
@@ -388,7 +376,7 @@ IF ((qpgs_a5 = 2) or (qpgs_a5 = 3) or (qpgs_a5 = 4) or (qpgs_a5 = 5)) FAPS_crit5
 **************************************************************************************************************************************************************.
 *** NOTE: the following applies to FAPS_crit3, FAPS_crit6, and AP_crit1                                                                                                                                                ***.
 ***            the scorecard I have lists frequency threshold as "once a week" but the questionnaires possible responses are never/once in a while/sometimes/etc ***.
-***            so for now, I will remap the responses as follows:				                                                                     ***.
+***            so here I will remap the responses as follows:				                                                                     ***.
 ***            never = never;  1 to 3 times a month = once in a while;  once a week = sometimes;  several times a week = most of the time;  every day = always    ***.
 **************************************************************************************************************************************************************.
 **************************************************************************************************************************************************************.
@@ -450,8 +438,6 @@ EXECUTE.
 DELETE VARIABLES FAPS_crit1 FAPS_crit2 FAPS_crit3 FAPS_crit3a FAPS_crit3b FAPS_crit4 FAPS_crit5 FAPS_crit6 FAPS_crit6a FAPS_crit6b FAPS_crit7.
 **************************************************.
 **************************************************.
-
-
 
 
 **************************************************.
@@ -525,9 +511,6 @@ DELETE VARIABLES FAP_crit1 FAP_crit2 FAP_crit3 FAP_crit4 FAP_crit5.
 **************************************************.
 
 
-
-
-
 **************************************************.
 **************************************************.
 *** functional constipation (FC) -- 2 criteria ***.
@@ -566,9 +549,6 @@ DELETE VARIABLES FC_crit1 FC_crit2.
 **************************************************.
 
 
-
-
-
 **************************************************.
 **************************************************.
 *** nonretentive fecal incontinence(NFI) -- 5 criteria ***.
@@ -583,7 +563,7 @@ NUMERIC NFI_dx (F3.0).
 VARIABLE LABELS NFI_dx 'Nonretentive Fecal Incontinence dx (Rome III)' .
 EXECUTE.
 
-* criterion 1: child is 4 years of age or older -- by definition, all participants in Tummy Troubles are at least 5 years old.
+* criterion 1: child is 4 years of age or older -- by definition, all participants in this study are at least 5 years old.
 COMPUTE NFI_crit1 = 1.
 
 * criterion 2: soiling once a week or more often.
@@ -612,9 +592,6 @@ EXECUTE.
 DELETE VARIABLES NFI_crit1 NFI_crit2 NFI_crit3 NFI_crit4 NFI_crit5.
 **************************************************.
 **************************************************.
-
-
-
 
 
 **************************************************.
@@ -647,8 +624,6 @@ EXECUTE.
 DELETE VARIABLES AP_crit1.
 **************************************************.
 **************************************************.
-
-
 
 
 **************************************************.
@@ -690,8 +665,6 @@ EXECUTE.
 DELETE VARIABLES CVS_crit1 CVS_crit2 CVS_crit3 CVS_crit4.
 **************************************************.
 **************************************************.
-
-
 
 
 **************************************************.
@@ -739,8 +712,6 @@ DELETE VARIABLES ARS_crit1 ARS_crit2 ARS_crit3 ARS_crit4 ARS_crit5.
 **************************************************.
 
 
-
-
 **************************************************.
 **************************************************.
 *** any GI diagnosis ***.
@@ -755,7 +726,6 @@ END IF.
 EXECUTE.
 **************************************************.
 **************************************************.
-
 
 
 **************************************************.
@@ -776,8 +746,6 @@ END IF.
 EXECUTE.
 **************************************************.
 **************************************************.
-
-
 
 
 *** format variables to remove decimal places ***.
@@ -802,6 +770,7 @@ FORMATS total_gi_dxs_qpgs (F4.0).
 FORMATS total_qpgs_responses (F4.0).
 EXECUTE.
 
+
 *** format variables to be nominal, not scale ***.
 VARIABLE LEVEL FD_dx (NOMINAL).
 VARIABLE LEVEL IBS_upper_dx (NOMINAL).
@@ -821,6 +790,7 @@ VARIABLE LEVEL AP_dx (NOMINAL).
 VARIABLE LEVEL CVS_dx (NOMINAL).
 VARIABLE LEVEL ARS_dx (NOMINAL).
 EXECUTE.
+
 
 *** add value labels to dx variables ***.
 VALUE LABELS FD_dx 0 'no dx' 1 'yes dx'.
@@ -843,16 +813,10 @@ VALUE LABELS ARS_dx 0 'no dx' 1 'yes dx'.
 EXECUTE.
 
 
-
-
 **************************************************.
 **************************************************.
 *** missing values analyses ***.
 **************************************************.
-
-
-
-
 NUMERIC qpgs_num_missing_nonskip (F4.0).
 VARIABLE LABELS qpgs_num_missing_nonskip 'Number of non-skip missing values on QPGS' .
 EXECUTE.
@@ -936,7 +900,6 @@ IF ((qpgs_d6e <= -6) AND (qpgs_d6e >= -9)) qpgs_num_missing_nonskip = (qpgs_num_
 
 END IF.
 EXECUTE.
-
 
 
 NUMERIC qpgs_num_sysmissing (F4.0).
@@ -1024,7 +987,6 @@ END IF.
 EXECUTE.
 
 
-
 NUMERIC qpgs_num_missing_dxcrit (F4.0).
 VARIABLE LABELS qpgs_num_missing_dxcrit 'Number of missing values on QPGS that are critical for dxs' .
 EXECUTE.
@@ -1085,33 +1047,30 @@ END IF.
 EXECUTE.
 
 
-
 **************************************************.
 **************************************************.
 *** re-assign a participant to a new study_group (6) if they were originally +ASD/-GID but show +GID on QPGS.
 **************************************************.
 DO IF (qpgs_complete=2).
   IF (study_group=2 AND total_gi_dxs_qpgs > 0) study_group=6.
-  IF (study_group=2 AND total_gi_dxs_qpgs > 0) study_group=6.
+*  IF (study_group=2 AND total_gi_dxs_qpgs > 0) study_group=6.
 END IF.
 EXECUTE.
 
 
 *but... if NFI is the only dx from the QPGS, then don't consider this to be sufficient for +QPGS re-assigment,
- as NFI is likely due to toileting, not really GID per se, so re-re-assign them back to ASD-only group.
+ as NFI is likely due to toilet training issues, not really GID per se, so re-re-assign them back to ASD-only group.
 DO IF (study_group=6).
   DO IF (total_gi_dxs_qpgs = 1 AND NFI_dx = 1).
     COMPUTE study_group=2.
-    COMPUTE study_group=2.
+*    COMPUTE study_group=2.
     COMPUTE analysis_notes=concat(RTRIM(analysis_notes),' nearly +QPGS, but only NFI; ').
   END IF.
 END IF.
 EXECUTE.
 
 
-
-
-*if QPGS is marked for exclusion, then ensure the relevant variables that I will do stats on are set to null for that particular kid.
+*if QPGS is marked for exclusion, then ensure the relevant variables that will be used for statistical analyses are set to null for that particular case.
 DO IF (include_flag_qpgs = 0).
   COMPUTE total_gi_dxs_qpgs = $SYSMIS.
 
@@ -1139,31 +1098,25 @@ END IF.
 EXECUTE.
 
 
-
-
-
-
 CROSSTABS
   /TABLES=total_gi_dxs_qpgs BY study_group
   /FORMAT=AVALUE TABLES
   /CELLS=COUNT COLUMN 
   /COUNT ROUND CELL.
 
-
 **************************************************.
 **************************************************.
 
 
-
 **************************************************.
 **************************************************.
-*now check for how many kids are missing qpgs_num_missing_dxcrit.
+*now check for how many cases are missing qpgs_num_missing_dxcrit.
 **************************************************.
 NUMERIC qpgs_missing_dxcrit_yn (F3.0).
 VARIABLE LABELS qpgs_missing_dxcrit_yn "looking for anyone who is missing a Dx-critical item from QPGS".
 VALUE LABELS qpgs_missing_dxcrit_yn 
 	0 'not missing any'
-	1 'YES missing OMG'
+	1 'YES missing'
 	2 'not applicable -- exclude QPGS'
 	3 'not applicable -- QPGS not yet complete'.
 VARIABLE LEVEL qpgs_missing_dxcrit_yn (NOMINAL).
@@ -1191,12 +1144,6 @@ CROSSTABS
   /COUNT ROUND CELL.
 ***************************************************.
 ***************************************************.
-
-
-
-
-
-
 
 
 SORT CASES BY
