@@ -3,9 +3,9 @@ QPGS-SPSS
 
 ## Synopsis
 
-The Questionnaire on Pediatric Gastrointestinal Symptoms (QPGS) is an instrument used in research and clinical care of pediatric functional gastrointestinal disorders (FGIDs) that was developed by the [Rome Foundation](www.romecriteria.org). 
+The Questionnaire on Pediatric Gastrointestinal Symptoms (QPGS) is an instrument used in research and clinical care of pediatric functional gastrointestinal disorders (FGIDs) that was developed by the [Rome Foundation](http://www.romecriteria.org). 
 
-As described by the publisher ([Rome Foundation](www.romecriteria.org/questionnaires)):
+As described by the publisher ([Rome Foundation](http://www.romecriteria.org/questionnaires)):
 
 > "The Rome Foundation has developed diagnostic questionnaires in coordination with the Rome III committees 
 > to assist physicians, health care professionals and researchers in identifying individuals 
